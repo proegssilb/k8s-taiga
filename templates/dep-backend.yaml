@@ -5,7 +5,7 @@ metadata:
   labels:
     app: {{ .Release.Name }}-backend
 spec:
-  replicas: {{ .Values.replicaCount }}
+
   selector:
     matchLabels:
       app: {{ .Release.Name }}-backend
@@ -37,10 +37,11 @@ spec:
           imagePullPolicy: Always
           command: ['/scripts/entrypoint.sh']
           args: ['gunicorn', '-b', '0.0.0.0:8000', '--access-logfile', '-', '--access-logfile', '-', 'taiga.wsgi']
-#          args: [ 'python3', 'manage.py', 'runserver', '0:8000' ]
           envFrom:
             - configMapRef:
                 name: {{ .Release.Name }}-configmap
+            - secretRef:
+                name: {{ .Release.Name }}-secrets
           env:
           - name: TAIGA_BACKEND
             value: {{ .Release.Name }}-backend
@@ -58,6 +59,26 @@ spec:
             value: https://{{ .Values.TAIGA_HOSTNAME }}/api/v1/
           - name: TAIGA_EVENTS_URL
             value: wss://{{ .Values.TAIGA_HOSTNAME }}/events
+          - name: DJANGO_DB_NAME
+            valueFrom:
+              configMapKeyRef:
+                name: {{ .Release.Name }}-configmap
+                key: POSTGRES_DB
+          - name: DJANGO_DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Release.Name }}-secrets
+                key: POSTGRES_PASSWORD
+          - name: DJANGO_DB_USER
+            valueFrom:
+              configMapKeyRef:
+                name: {{ .Release.Name }}-configmap
+                key: POSTGRES_USER
+          - name: DJANGO_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Release.Name }}-secrets
+                key: TAIGA_SECRET
           ports:
             - name: http
               containerPort: 8000

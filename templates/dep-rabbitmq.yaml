@@ -6,7 +6,7 @@ metadata:
   labels:
     app: {{ .Release.Name }}-rabbitmq
 spec:
-  replicas: {{ .Values.replicaCount }}
+   
   selector:
     matchLabels:
       app: {{ .Release.Name }}-rabbitmq
@@ -24,6 +24,8 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ .Release.Name }}-configmap
+            - secretRef:
+                name: {{ .Release.Name }}-secrets
           ports:
             - name: rabbitmq
               containerPort: 5672

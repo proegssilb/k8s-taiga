@@ -6,7 +6,7 @@ metadata:
   labels:
     app: {{ .Release.Name }}-postgresql
 spec:
-  replicas: {{ .Values.replicaCount }}
+   
   selector:
     matchLabels:
       app: {{ .Release.Name }}-postgresql
@@ -24,6 +24,8 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ .Release.Name }}-configmap
+            - secretRef:
+                name: {{ .Release.Name }}-secrets
           volumeMounts:
             - name: taiga-postgresql-data
               mountPath: /var/lib/postgresql/data
